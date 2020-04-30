@@ -30,8 +30,8 @@ func initProc() error {
 	)
 	flag.BoolVar(&h, "help", false, "show this help")
 	flag.BoolVar(&v, "version", false, "get version info")
-	flag.StringVar(&configFilepath, "config", "config.ini", "config file")
-	flag.StringVar(&pidFilepath, "pidfile", "", "PID file")
+	flag.StringVar(&configFilepath, "config", "config.ini", "specify config file path")
+	flag.StringVar(&pidFilepath, "pidfile", "", "specify PID file path")
 	flag.Parse()
 	if h {
 		flag.Usage()
