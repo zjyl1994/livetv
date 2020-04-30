@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"strconv"
 
@@ -46,8 +47,7 @@ func initProc() error {
 		if _, err := os.Stat(pidFilepath); os.IsNotExist(err) {
 			ioutil.WriteFile(pidFilepath, []byte(strconv.Itoa(os.Getpid())), 0644)
 		} else {
-			fmt.Println("The PID file of LiveTV exists and the current instance will not start.")
-			os.Exit(0)
+			log.Fatalln("The PID file of LiveTV exists and the current instance will not start.")
 		}
 	}
 	cfg = new(Config)

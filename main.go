@@ -17,6 +17,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("init: %s\n", err)
 	}
+	defer removePidFile()
 	log.Println("LiveTV starting...")
 	router := gin.Default()
 	router.GET("/", func(c *gin.Context) {
