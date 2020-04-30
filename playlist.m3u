@@ -1,0 +1,5 @@
+#EXTM3U
+{{range .channels}}
+#EXTINF:-1,{{.name}}
+{{.url}}
+{{end}}
