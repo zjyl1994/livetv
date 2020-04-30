@@ -22,6 +22,6 @@ func getYoutubeLiveM3U8(youtubeURL string) (string, error) {
 		defer cancelFunc()
 		cmd := exec.CommandContext(ctx, cfg.YtdlCmd, ytdlArgs...)
 		out, err := cmd.CombinedOutput()
-		return string(out), err
+		return strings.TrimSpace(string(out)), err
 	}
 }

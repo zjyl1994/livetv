@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/go-ini/ini"
 )
@@ -21,15 +22,23 @@ type Config struct {
 	YtdlArgs    string
 }
 
-var cfg *Config
-var configFilepath string
-var pidFilepath string
+var (
+	cfg            *Config
+	configFilepath string
+	pidFilepath    string
+)
+
+const (
+	httpClientTimeout = 10 * time.Second
+	versionString     = "LiveTV ALPHA Edition"
+)
 
 func initProc() error {
 	var (
 		h bool // help
 		v bool // version
 	)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	flag.BoolVar(&h, "help", false, "show this help")
 	flag.BoolVar(&v, "version", false, "get version info")
 	flag.StringVar(&configFilepath, "config", "config.ini", "specify config file path")
@@ -40,7 +49,7 @@ func initProc() error {
 		os.Exit(0)
 	}
 	if v {
-		fmt.Println("LiveTV ALPHA Edition")
+		fmt.Println(versionString)
 		os.Exit(0)
 	}
 	if pidFilepath != "" {

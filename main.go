@@ -21,9 +21,11 @@ func main() {
 	log.Println("LiveTV starting...")
 	router := gin.Default()
 	router.GET("/", func(c *gin.Context) {
-		time.Sleep(5 * time.Second)
-		c.String(http.StatusOK, "Welcome Gin Server")
+		c.String(http.StatusOK, versionString)
 	})
+	router.GET("/live.m3u8", liveHandler)
+	router.GET("/p/live.m3u8", m3u8ProxyHandler)
+	router.GET("/p/live.ts", tsProxyHandler)
 	srv := &http.Server{
 		Addr:    cfg.ListenOn,
 		Handler: router,
