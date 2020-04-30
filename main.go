@@ -23,6 +23,7 @@ func main() {
 	router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, versionString)
 	})
+	router.GET("/lives.m3u", m3uHandler)
 	router.GET("/live.m3u8", liveHandler)
 	router.GET("/p/live.m3u8", m3u8ProxyHandler)
 	router.GET("/p/live.ts", tsProxyHandler)
