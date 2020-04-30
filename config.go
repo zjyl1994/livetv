@@ -17,6 +17,7 @@ type Config struct {
 	M3UTemplate string
 	ChannelFile string
 	YtdlCmd     string
+	YtdlArgs    string
 }
 
 var cfg *Config
