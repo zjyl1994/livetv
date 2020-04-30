@@ -19,6 +19,7 @@ func main() {
 	}
 	defer removePidFile()
 	log.Println("LiveTV starting...")
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	router.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, versionString)
