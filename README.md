@@ -23,8 +23,6 @@ sudo systemctl start livetv
 
 ## Usage
 
-Change `ProxyStream` in `config.ini` to `false` if you not live in China.Will more faster to watch live.
-
 ### Direct play Youtube live
 
 `baseURL + "/live.m3u8?url=" + Youtube link`

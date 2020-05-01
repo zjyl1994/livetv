@@ -2,6 +2,7 @@
 Description=LiveTV Service
 [Service]
 Type=simple
+#Environment=HTTP_PROXY=http://127.0.0.1:15000
 WorkingDirectory=/etc/livetv
 ExecStart=/usr/local/bin/livetv
 Restart=always
