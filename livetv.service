@@ -1,0 +1,10 @@
+[Unit]
+Description=LiveTV Service
+[Service]
+Type=simple
+WorkingDirectory=/etc/livetv
+ExecStart=/usr/local/bin/livetv
+Restart=always
+RestartSec=30
+[Install]
+WantedBy=multi-user.target
