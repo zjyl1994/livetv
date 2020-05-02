@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/robfig/cron/v3"
 )
 
 func main() {
@@ -19,6 +20,13 @@ func main() {
 	}
 	defer removePidFile()
 	log.Println("LiveTV starting...")
+	go loadChannelCache()
+	c := cron.New()
+	_, err = c.AddFunc(cfg.PreloadCron, updateURLCache)
+	if err != nil {
+		log.Fatalf("preloadCron: %s\n", err)
+	}
+	c.Start()
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	router.GET("/", func(c *gin.Context) {

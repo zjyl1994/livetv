@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"time"
@@ -20,6 +21,7 @@ type Config struct {
 	ChannelFile string
 	YtdlCmd     string
 	YtdlArgs    string
+	PreloadCron string
 }
 
 var (
@@ -38,6 +40,7 @@ func initProc() error {
 		h bool // help
 		v bool // version
 	)
+	rand.Seed(time.Now().UnixNano())
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	flag.BoolVar(&h, "help", false, "show this help")
 	flag.BoolVar(&v, "version", false, "get version info")

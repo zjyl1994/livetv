@@ -8,6 +8,21 @@ import (
 )
 
 func getYoutubeLiveM3U8(youtubeURL string) (string, error) {
+	liveURL, ok := urlCache.Load(youtubeURL)
+	if ok {
+		return liveURL.(string), nil
+	} else {
+		liveURL, err := realGetYoutubeLiveM3U8(youtubeURL)
+		if err != nil {
+			return "", err
+		} else {
+			urlCache.Store(youtubeURL, liveURL)
+			return liveURL, nil
+		}
+	}
+}
+
+func realGetYoutubeLiveM3U8(youtubeURL string) (string, error) {
 	ytdlArgs := strings.Fields(cfg.YtdlArgs)
 	for i, v := range ytdlArgs {
 		if strings.EqualFold(v, "{url}") {

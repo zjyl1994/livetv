@@ -66,7 +66,7 @@ func m3u8ProxyHandler(c *gin.Context) {
 	}
 	bodyString := string(bodyBytes)
 	processedBody := m3u8Proc(bodyString, cfg.BaseURL+"/p/live.ts?url=")
-	c.Data(200, resp.Header.Get("Content-Type"), []byte(processedBody))
+	c.Data(http.StatusOK, resp.Header.Get("Content-Type"), []byte(processedBody))
 }
 
 func m3u8Proc(data string, prefixURL string) string {
