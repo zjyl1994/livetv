@@ -36,6 +36,7 @@ func main() {
 	router.GET("/live.m3u8", liveHandler)
 	router.GET("/p/live.m3u8", m3u8ProxyHandler)
 	router.GET("/p/live.ts", tsProxyHandler)
+	router.GET("cache.txt", cacheHandler)
 	srv := &http.Server{
 		Addr:    cfg.ListenOn,
 		Handler: router,

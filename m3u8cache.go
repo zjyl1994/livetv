@@ -2,10 +2,14 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 var urlCache sync.Map
@@ -75,4 +79,16 @@ func string2Int64(s string) int64 {
 	} else {
 		return i64
 	}
+}
+
+func cacheHandler(c *gin.Context) {
+	var sb strings.Builder
+	urlCache.Range(func(k, v interface{}) bool {
+		sb.WriteString(k.(string))
+		sb.WriteString(" => ")
+		sb.WriteString(v.(string))
+		sb.WriteString("\n")
+		return true
+	})
+	c.Data(http.StatusOK, "text/plain", []byte(sb.String()))
 }

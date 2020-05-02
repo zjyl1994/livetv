@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"os/exec"
 	"strings"
 	"time"
@@ -10,8 +11,10 @@ import (
 func getYoutubeLiveM3U8(youtubeURL string) (string, error) {
 	liveURL, ok := urlCache.Load(youtubeURL)
 	if ok {
+		log.Println("cache hit", youtubeURL)
 		return liveURL.(string), nil
 	} else {
+		log.Println("cache miss", youtubeURL)
 		liveURL, err := realGetYoutubeLiveM3U8(youtubeURL)
 		if err != nil {
 			return "", err
