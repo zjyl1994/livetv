@@ -11,34 +11,32 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/robfig/cron/v3"
+	"github.com/zjyl1994/livetv/global"
+	"github.com/zjyl1994/livetv/route"
+	"github.com/zjyl1994/livetv/service"
 )
 
 func main() {
-	err := initProc()
+	err := global.InitDB("./data/livetv.db")
 	if err != nil {
-		log.Fatalf("init: %s\n", err)
+		log.Panicf("init: %s\n", err)
 	}
-	defer removePidFile()
 	log.Println("LiveTV starting...")
-	go loadChannelCache()
+	go service.LoadChannelCache()
 	c := cron.New()
-	_, err = c.AddFunc(cfg.PreloadCron, updateURLCache)
+	_, err = c.AddFunc("0 */4 * * *", service.UpdateURLCache)
 	if err != nil {
-		log.Fatalf("preloadCron: %s\n", err)
+		log.Panicf("preloadCron: %s\n", err)
 	}
 	c.Start()
-	gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
 	router.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, versionString)
+		c.String(http.StatusOK, global.VersionString)
 	})
-	router.GET("/lives.m3u", m3uHandler)
-	router.GET("/live.m3u8", liveHandler)
-	router.GET("/p/live.m3u8", m3u8ProxyHandler)
-	router.GET("/p/live.ts", tsProxyHandler)
-	router.GET("cache.txt", cacheHandler)
+	route.Register(router)
 	srv := &http.Server{
-		Addr:    cfg.ListenOn,
+		Addr:    ":9000",
 		Handler: router,
 	}
 	go func() {
@@ -46,7 +44,7 @@ func main() {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("Shuting down server...")

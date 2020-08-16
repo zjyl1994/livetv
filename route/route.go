@@ -11,4 +11,5 @@ func Register(r *gin.Engine) {
 	r.GET("/live.m3u8", handler.LiveHandler)
 	r.GET("/p/live.m3u8", handler.M3U8ProxyHandler)
 	r.GET("/p/live.ts", handler.TsProxyHandler)
+	r.GET("/cache.txt", handler.CacheHandler)
 }
