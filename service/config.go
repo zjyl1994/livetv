@@ -10,7 +10,7 @@ func GetConfig(key string) (string, error) {
 	if confValue, ok := global.ConfigCache.Load(key); ok {
 		return confValue.(string), nil
 	} else {
-		var value string
+		var value model.Config
 		err := global.DB.Where("name = ?", key).First(&value).Error
 		if err != nil {
 			if gorm.IsRecordNotFoundError(err) {
@@ -20,7 +20,7 @@ func GetConfig(key string) (string, error) {
 			}
 		} else {
 			global.ConfigCache.Store(key, value)
-			return value, nil
+			return value.Data, nil
 		}
 	}
 }

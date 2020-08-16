@@ -2,8 +2,8 @@ package global
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/zjyl1994/livetv/model"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/zjyl1994/livetv/model"
 )
 
 var DB *gorm.DB
@@ -13,5 +13,18 @@ func InitDB(filepath string) (err error) {
 	if err != nil {
 		return err
 	}
-	return DB.AutoMigrate(&model.Config{}, &model.Channel{}).Error
+	err = DB.AutoMigrate(&model.Config{}, &model.Channel{}).Error
+	if err != nil {
+		return err
+	}
+	for k, v := range defaultConfigValue {
+		configItem := model.Config{Name: k, Data: v}
+		if DB.NewRecord(configItem) {
+			err = DB.Create(&configItem).Error
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
