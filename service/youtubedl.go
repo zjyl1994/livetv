@@ -51,6 +51,7 @@ func RealGetYoutubeLiveM3U8(youtubeURL string) (string, error) {
 	} else {
 		ctx, cancelFunc := context.WithTimeout(context.Background(), global.HttpClientTimeout)
 		defer cancelFunc()
+		log.Println(YtdlCmd, ytdlArgs)
 		cmd := exec.CommandContext(ctx, YtdlCmd, ytdlArgs...)
 		out, err := cmd.CombinedOutput()
 		return strings.TrimSpace(string(out)), err

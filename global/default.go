@@ -12,7 +12,7 @@ var defaultConfigValue = map[string]string{
 }
 
 var (
-	HttpClientTimeout = 10 * time.Second
+	HttpClientTimeout = 30 * time.Second
 	VersionString     = "LiveTV! v0.0.2"
 	ConfigCache       sync.Map
 	URLCache          sync.Map

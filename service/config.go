@@ -19,7 +19,7 @@ func GetConfig(key string) (string, error) {
 				return "", err
 			}
 		} else {
-			global.ConfigCache.Store(key, value)
+			global.ConfigCache.Store(key, value.Data)
 			return value.Data, nil
 		}
 	}
