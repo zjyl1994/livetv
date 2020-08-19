@@ -4,8 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LiveTV!</title>
+    <link rel="stylesheet" type="text/css" href="/assets/index.css">
 </head>
 <body>
-    Channels:
+    <h1>Channels</h1>
+    <table id="channelTable">
+        <tr>
+            <th>#</th>
+            <th>Channel</th>
+            <th>Live URL</th>
+        </tr>
+        {{range .Channels}}
+        <tr>
+            <td>{{.ID}}</td>
+            <td>{{.Name}}</td>
+            <td>{{.URL}}</td>
+        </tr>
+        {{end}}
+    </table>
 </body>
 </html>

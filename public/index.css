@@ -1,0 +1,8 @@
+html {
+    font-family: 'helvetica neue', helvetica, arial, sans-serif;
+}
+
+#channelTable th{
+    color: white;
+    background-color: cornflowerblue;
+}

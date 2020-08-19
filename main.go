@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/robfig/cron/v3"
 	"github.com/zjyl1994/livetv/global"
 	"github.com/zjyl1994/livetv/route"
@@ -18,7 +20,12 @@ import (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	err := global.InitDB("./data/livetv.db")
+	logFile, err := os.OpenFile(os.Getenv("LIVETV_DATADIR")+"/livetv.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		log.Panicln(err)
+	}
+	log.SetOutput(io.MultiWriter(os.Stderr, logFile))
+	err = global.InitDB(os.Getenv("LIVETV_DATADIR") + "/livetv.db")
 	if err != nil {
 		log.Panicf("init: %s\n", err)
 	}
@@ -32,12 +39,13 @@ func main() {
 	c.Start()
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
-	router.GET("/", func(c *gin.Context) {
+	router.Static("/assets", "./public")
+	router.GET("/version", func(c *gin.Context) {
 		c.String(http.StatusOK, global.VersionString)
 	})
 	route.Register(router)
 	srv := &http.Server{
-		Addr:    ":9000",
+		Addr:    os.Getenv("LIVETV_LISTEN"),
 		Handler: router,
 	}
 	go func() {
@@ -55,4 +63,5 @@ func main() {
 		log.Panicf("Server forced to shutdown: %s\n", err)
 	}
 	log.Println("Server exiting")
+	logFile.Close()
 }
