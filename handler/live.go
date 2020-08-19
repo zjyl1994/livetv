@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -53,7 +52,7 @@ func LiveHandler(c *gin.Context) {
 		return
 	}
 	if channelInfo.Proxy {
-		liveProxyM3U8 := baseUrl + "/p/live.m3u8?url=" + url.QueryEscape(liveM3U8)
+		liveProxyM3U8 := baseUrl + "/p/live.m3u8?k=" + util.CompressString(liveM3U8)
 		c.Redirect(http.StatusTemporaryRedirect, liveProxyM3U8)
 	} else {
 		c.Redirect(http.StatusTemporaryRedirect, liveM3U8)
@@ -61,7 +60,17 @@ func LiveHandler(c *gin.Context) {
 }
 
 func TsProxyHandler(c *gin.Context) {
-	remoteURL := c.Query("url")
+	zipedRemoteURL := c.Query("k")
+	remoteURL, err := util.DecompressString(zipedRemoteURL)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	if remoteURL == "" {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
 	client := http.Client{Timeout: global.HttpClientTimeout}
 	resp, err := client.Get(remoteURL)
 	if err != nil {
@@ -74,7 +83,13 @@ func TsProxyHandler(c *gin.Context) {
 }
 
 func M3U8ProxyHandler(c *gin.Context) {
-	m3u8URL := c.Query("url")
+	zipedRemoteURL := c.Query("k")
+	m3u8URL, err := util.DecompressString(zipedRemoteURL)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 	if m3u8URL == "" {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
@@ -100,7 +115,7 @@ func M3U8ProxyHandler(c *gin.Context) {
 		return
 	}
 	bodyString := string(bodyBytes)
-	processedBody := service.M3U8Process(bodyString, baseURL+"/p/live.ts?url=")
+	processedBody := service.M3U8Process(bodyString, baseURL+"/p/live.ts?k=")
 	c.Data(http.StatusOK, resp.Header.Get("Content-Type"), []byte(processedBody))
 }
 

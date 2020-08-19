@@ -2,8 +2,9 @@ package service
 
 import (
 	"bufio"
-	"net/url"
 	"strings"
+
+	"github.com/zjyl1994/livetv/util"
 )
 
 func M3U8Process(data string, prefixURL string) string {
@@ -15,7 +16,7 @@ func M3U8Process(data string, prefixURL string) string {
 			sb.WriteString(l)
 		} else {
 			sb.WriteString(prefixURL)
-			sb.WriteString(url.QueryEscape(l))
+			sb.WriteString(util.CompressString(l))
 		}
 		sb.WriteString("\n")
 	}
