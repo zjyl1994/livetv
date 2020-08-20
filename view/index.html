@@ -1,26 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>LiveTV!</title>
-    <link rel="stylesheet" type="text/css" href="/assets/index.css">
-</head>
-<body>
-    <h1>Channels</h1>
-    <table id="channelTable">
-        <tr>
-            <th>#</th>
-            <th>Channel</th>
-            <th>Live URL</th>
-        </tr>
-        {{range .Channels}}
-        <tr>
-            <td>{{.ID}}</td>
-            <td>{{.Name}}</td>
-            <td>{{.URL}}</td>
-        </tr>
-        {{end}}
-    </table>
-</body>
+    <link href="/assert/css/bootstrap.min.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <link href="/assert/css/index.css" rel="stylesheet">
+  </head>
+  <body>
+      <div class="container">
+          <div>
+            <h1>Channels</h1>
+            <form class="form-inline">
+                <div class="form-group">
+                  <label for="inputChannelName">Name</label>
+                  <input type="text" class="form-control" id="inputChannelName">
+                </div>
+                <div class="form-group">
+                  <label for="inputChannelLiveURL">URL</label>
+                  <input type="text" class="form-control" id="inputChannelLiveURL">
+                </div>
+                <button type="submit" class="btn btn-default">Add Channel</button>
+            </form>
+            <br>
+            <table class="table table-striped table-condensed">
+                <tr>
+                    <th>#</th>
+                    <th>Channel</th>
+                    <th>Live URL</th>
+                    <th>M3U8 URL</th>
+                </tr>
+                {{range .Channels}}
+                <tr>
+                    <td>{{.ID}}</td>
+                    <td>{{.Name}}</td>
+                    <td>{{.URL}}</td>
+                    <td>{{.M3U8}}</td>
+                </tr>
+                {{end}}
+            </table>
+        </div>
+    </div>
+    <script src="/assert/js/jquery.min.js"></script>
+    <script src="/assert/js/bootstrap.min.js"></script>
+  </body>
 </html>

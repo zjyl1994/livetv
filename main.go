@@ -39,7 +39,7 @@ func main() {
 	c.Start()
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
-	router.Static("/assets", "./public")
+	router.Static("/assert", "./assert")
 	router.GET("/version", func(c *gin.Context) {
 		c.String(http.StatusOK, global.VersionString)
 	})
