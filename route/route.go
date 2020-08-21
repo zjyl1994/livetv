@@ -14,5 +14,7 @@ func Register(r *gin.Engine) {
 	r.GET("/p/live.ts", handler.TsProxyHandler)
 	r.GET("/cache.txt", handler.CacheHandler)
 
-	r.GET("/", handler.IndexHandler)
+	r.GET("/channels", handler.ChannelIndexHandler)
+	r.POST("/api/newchannel", handler.NewChannelHandler)
+	r.GET("/api/delchannel", handler.DeleteChannelHandler)
 }

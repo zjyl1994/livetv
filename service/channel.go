@@ -11,7 +11,7 @@ func GetAllChannel() (channels []model.Channel, err error) {
 }
 
 func SaveChannel(channel model.Channel) error {
-	return global.DB.Save(channel).Error
+	return global.DB.Save(&channel).Error
 }
 
 func DeleteChannel(id uint) error {

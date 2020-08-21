@@ -16,14 +16,19 @@
       <div class="container">
           <div>
             <h1>Channels</h1>
-            <form class="form-inline">
+            <form class="form-inline" action="/api/newchannel" method="POST">
                 <div class="form-group">
                   <label for="inputChannelName">Name</label>
-                  <input type="text" class="form-control" id="inputChannelName">
+                  <input type="text" class="form-control" id="inputChannelName" name="name">
                 </div>
                 <div class="form-group">
                   <label for="inputChannelLiveURL">URL</label>
-                  <input type="text" class="form-control" id="inputChannelLiveURL">
+                  <input type="text" class="form-control" id="inputChannelLiveURL" name="url">
+                </div>
+                <div class="checkbox">
+                  <label>
+                    <input type="checkbox" name="proxy">Proxy stream
+                  </label>
                 </div>
                 <button type="submit" class="btn btn-default">Add Channel</button>
             </form>
@@ -32,8 +37,10 @@
                 <tr>
                     <th>#</th>
                     <th>Channel</th>
-                    <th>Live URL</th>
-                    <th>M3U8 URL</th>
+                    <th>Live</th>
+                    <th>M3U8</th>
+                    <th>Proxy</th>
+                    <th></th>
                 </tr>
                 {{range .Channels}}
                 <tr>
@@ -41,6 +48,8 @@
                     <td>{{.Name}}</td>
                     <td>{{.URL}}</td>
                     <td>{{.M3U8}}</td>
+                    <td>{{ if .Proxy }}<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>{{ end }}</td>
+                    <td><a href="/api/delchannel?id={{.ID}}"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a></td>
                 </tr>
                 {{end}}
             </table>
