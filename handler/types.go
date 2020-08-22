@@ -7,3 +7,9 @@ type Channel struct {
 	M3U8  string
 	Proxy bool
 }
+
+type Config struct {
+	BaseURL string
+	Cmd     string
+	Args    string
+}

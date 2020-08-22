@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/zjyl1994/livetv/model"
@@ -11,7 +12,7 @@ import (
 	"github.com/zjyl1994/livetv/util"
 )
 
-func ChannelIndexHandler(c *gin.Context) {
+func IndexHandler(c *gin.Context) {
 	baseUrl, err := service.GetConfig("base_url")
 	if err != nil {
 		log.Println(err.Error())
@@ -38,9 +39,38 @@ func ChannelIndexHandler(c *gin.Context) {
 			Proxy: v.Proxy,
 		}
 	}
+	conf, err := loadConfig()
+	if err != nil {
+		log.Println(err.Error())
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+			"ErrMsg": err.Error(),
+		})
+		return
+	}
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"Channels": channels,
+		"Configs":  conf,
 	})
+}
+
+func loadConfig() (Config, error) {
+	var conf Config
+	if cmd, err := service.GetConfig("ytdl_cmd"); err != nil {
+		return conf, err
+	} else {
+		conf.Cmd = cmd
+	}
+	if args, err := service.GetConfig("ytdl_args"); err != nil {
+		return conf, err
+	} else {
+		conf.Args = args
+	}
+	if burl, err := service.GetConfig("base_url"); err != nil {
+		return conf, err
+	} else {
+		conf.BaseURL = burl
+	}
+	return conf, nil
 }
 
 func NewChannelHandler(c *gin.Context) {
@@ -78,6 +108,43 @@ func DeleteChannelHandler(c *gin.Context) {
 			"ErrMsg": err.Error(),
 		})
 		return
+	}
+	c.Redirect(http.StatusFound, "/")
+}
+
+func UpdateConfigHandler(c *gin.Context) {
+	ytdlCmd := c.PostForm("cmd")
+	ytdlArgs := c.PostForm("args")
+	baseUrl := strings.TrimSuffix(c.PostForm("baseurl"), "/")
+	if len(ytdlCmd) > 0 {
+		err := service.SetConfig("ytdl_cmd", ytdlCmd)
+		if err != nil {
+			log.Println(err.Error())
+			c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+				"ErrMsg": err.Error(),
+			})
+			return
+		}
+	}
+	if len(ytdlArgs) > 0 {
+		err := service.SetConfig("ytdl_args", ytdlArgs)
+		if err != nil {
+			log.Println(err.Error())
+			c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+				"ErrMsg": err.Error(),
+			})
+			return
+		}
+	}
+	if len(baseUrl) > 0 {
+		err := service.SetConfig("base_url", baseUrl)
+		if err != nil {
+			log.Println(err.Error())
+			c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+				"ErrMsg": err.Error(),
+			})
+			return
+		}
 	}
 	c.Redirect(http.StatusFound, "/")
 }

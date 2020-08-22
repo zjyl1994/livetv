@@ -40,9 +40,6 @@ func main() {
 	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
 	router.Static("/assert", "./assert")
-	router.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusMovedPermanently, "/channels")
-	})
 	router.GET("/version", func(c *gin.Context) {
 		c.String(http.StatusOK, global.VersionString)
 	})
