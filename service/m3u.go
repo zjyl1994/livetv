@@ -26,6 +26,7 @@ func M3UGenerate() (string, error) {
 		m3u.WriteString(baseUrl)
 		m3u.WriteString("/live.m3u8?channel=")
 		m3u.WriteString(strconv.Itoa(int(v.ID)))
+		m3u.WriteString("\n")
 	}
 	return m3u.String(), nil
 }

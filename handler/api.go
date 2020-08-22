@@ -20,6 +20,9 @@ var langMatcher = language.NewMatcher([]language.Tag{
 })
 
 func IndexHandler(c *gin.Context) {
+	acceptLang := c.Request.Header.Get("Accept-Language")
+	langTag, _ := language.MatchStrings(langMatcher, acceptLang)
+
 	baseUrl, err := service.GetConfig("base_url")
 	if err != nil {
 		log.Println(err.Error())
@@ -36,9 +39,20 @@ func IndexHandler(c *gin.Context) {
 		})
 		return
 	}
-	channels := make([]Channel, len(channelModels))
+	var m3uName string
+	if langTag == language.Chinese {
+		m3uName = "M3U 頻道列表"
+	} else {
+		m3uName = "M3U File"
+	}
+	channels := make([]Channel, len(channelModels)+1)
+	channels[0] = Channel{
+		ID:   0,
+		Name: m3uName,
+		M3U8: baseUrl + "/lives.m3u",
+	}
 	for i, v := range channelModels {
-		channels[i] = Channel{
+		channels[i+1] = Channel{
 			ID:    v.ID,
 			Name:  v.Name,
 			URL:   v.URL,
@@ -54,8 +68,7 @@ func IndexHandler(c *gin.Context) {
 		})
 		return
 	}
-	acceptLang := c.Request.Header.Get("Accept-Language")
-	langTag, _ := language.MatchStrings(langMatcher, acceptLang)
+
 	var templateFilename string
 	if langTag == language.Chinese {
 		templateFilename = "index-zh.html"
