@@ -10,7 +10,14 @@ import (
 	"github.com/zjyl1994/livetv/model"
 	"github.com/zjyl1994/livetv/service"
 	"github.com/zjyl1994/livetv/util"
+
+	"golang.org/x/text/language"
 )
+
+var langMatcher = language.NewMatcher([]language.Tag{
+	language.English,
+	language.Chinese,
+})
 
 func IndexHandler(c *gin.Context) {
 	baseUrl, err := service.GetConfig("base_url")
@@ -47,7 +54,15 @@ func IndexHandler(c *gin.Context) {
 		})
 		return
 	}
-	c.HTML(http.StatusOK, "index.html", gin.H{
+	acceptLang := c.Request.Header.Get("Accept-Language")
+	langTag, _ := language.MatchStrings(langMatcher, acceptLang)
+	var templateFilename string
+	if langTag == language.Chinese {
+		templateFilename = "index-zh.html"
+	} else {
+		templateFilename = "index.html"
+	}
+	c.HTML(http.StatusOK, templateFilename, gin.H{
 		"Channels": channels,
 		"Configs":  conf,
 	})

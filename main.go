@@ -37,7 +37,7 @@ func main() {
 		log.Panicf("preloadCron: %s\n", err)
 	}
 	c.Start()
-	gin.SetMode(gin.DebugMode)
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	router.Static("/assert", "./assert")
 	router.GET("/version", func(c *gin.Context) {
