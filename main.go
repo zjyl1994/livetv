@@ -20,7 +20,9 @@ import (
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	logFile, err := os.OpenFile(os.Getenv("LIVETV_DATADIR")+"/livetv.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	log.Println("Server listen", os.Getenv("LIVETV_LISTEN"))
+	log.Println("Server datadir", os.Getenv("LIVETV_DATADIR"))
+	logFile, err := os.OpenFile(os.Getenv("LIVETV_DATADIR")+"/livetv.log", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -30,7 +32,7 @@ func main() {
 		log.Panicf("init: %s\n", err)
 	}
 	log.Println("LiveTV starting...")
-	//go service.LoadChannelCache()
+	go service.LoadChannelCache()
 	c := cron.New()
 	_, err = c.AddFunc("0 */4 * * *", service.UpdateURLCache)
 	if err != nil {

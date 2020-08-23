@@ -3,6 +3,7 @@ package handler
 import (
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -104,6 +105,10 @@ func loadConfig() (Config, error) {
 func NewChannelHandler(c *gin.Context) {
 	chName := c.PostForm("name")
 	chURL := c.PostForm("url")
+	if chName == "" || chURL == "" {
+		c.Redirect(http.StatusFound, "/")
+		return
+	}
 	chProxy := c.PostForm("proxy") != ""
 	mch := model.Channel{
 		Name:  chName,
@@ -175,4 +180,8 @@ func UpdateConfigHandler(c *gin.Context) {
 		}
 	}
 	c.Redirect(http.StatusFound, "/")
+}
+
+func LogHandler(c *gin.Context) {
+	c.File(os.Getenv("LIVETV_DATADIR") + "/livetv.log")
 }
