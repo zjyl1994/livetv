@@ -33,16 +33,3 @@ func SetConfig(key, value string) error {
 	}
 	return err
 }
-
-func LoadConfigCache() error {
-	var datas []model.Config
-	err := global.DB.Find(&datas).Error
-	if err != nil {
-		return err
-	} else {
-		for _, v := range datas {
-			global.ConfigCache.Store(v.Name, v.Data)
-		}
-		return nil
-	}
-}

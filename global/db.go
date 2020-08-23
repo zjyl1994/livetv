@@ -17,13 +17,17 @@ func InitDB(filepath string) (err error) {
 	if err != nil {
 		return err
 	}
-	for k, v := range defaultConfigValue {
-		configItem := model.Config{Name: k, Data: v}
-		if DB.NewRecord(configItem) {
-			err = DB.Create(&configItem).Error
-			if err != nil {
+	for key, valueDefault := range defaultConfigValue {
+		var valueInDB model.Config
+		err = DB.Where("name = ?", key).First(&valueInDB).Error
+		if err != nil {
+			if gorm.IsRecordNotFoundError(err) {
+				ConfigCache.Store(key, valueDefault)
+			} else {
 				return err
 			}
+		} else {
+			ConfigCache.Store(key, valueInDB.Data)
 		}
 	}
 	return nil
