@@ -3,75 +3,30 @@
 
 ## 安装方法
 
-### 从源码安装
+首先你需要安裝Docker，Centos7用家可以直接使用參考這篇教學文檔：[How To Install and Use Docker on CentOS 7](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-centos-7)
 
-本程序依赖 `youtube-dl` ，请自行通过包管理器等方式进行安装。
+安裝好Docker后，只需要使用以下命令即可在本地的9500連接埠啓用LiveTV!
 
-```bash
-git clone https://github.com/zjyl1994/livetv.git
-cd livetv
-go build
-sudo cp livetv /usr/local/bin/
-sudo mkdir -p /etc/livetv
-sudo cp config.ini playlist.m3u channel.txt /etc/livetv/
-sudo cp livetv.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl start livetv
-```
-## 配置
+`docker run -d -p9500:9000 zjyl1994/livetv:1.0`
 
-### config.ini
+資料檔存儲于容器内的 `/root/data` 目錄中，所以建議使用-v指令將這個目錄映射到宿主機的目錄。
 
-**如果你不清楚你在做什么请不要修改本文件。**
+一個使用外部儲存目錄的例子如下。
 
-BaseURL 外部访问的URL地址
+`docker run -d -p9500:9000 -v/mnt/data/livetv:/root/data zjyl1994/livetv:1.0`
 
-ListenOn  程序监听的本地URL地址
+這將在 9500 連接埠開啓一個使用 `/mnt/data/livetv` 目錄作爲存儲的 LiveTV！ 容器。
 
-ProxyStream 是否代理直播流，默认true
+PS: 如果不指定外部存儲目錄，LiveTV！重新啓動時將無法讀取之前的設定檔。
 
-M3UTemplate m3u文件模板位置
+## 使用方法
 
-ChannelFile 频道定义文件位置
+首先你要知道如何在外界訪問到你的主機，如果你使用 VPS 或者獨立伺服器，可以訪問 `http://你的主機ip:9500`，你應該可以看到以下畫面：
 
-YtdlCmd youtube-dl调用命令
+![index_page](pic/index-zh.png)
 
-YtdlArgs youtube-dl调用参数
+首先你需要在設定區域點擊“自動填充”，設定正確的URL。然後點擊“儲存設定”。
 
-### playlist.m3u
+然後就可以添加頻道，頻道添加成功后就能M3U8檔案列的地址進行播放了。
 
-如果你需要修改生成的m3u节目清单，可以在尾部追加任意符合格式的条目，但请不要删除已有内容。
-
-### channel.txt
-
-频道定义文件，两行一个频道。第一行一般为频道名，以`#`号开头。第二行为Youtube直播地址，无需做任何转换。
-
-## 使用
-
-假设当前 `baseURL` 设置为：`http://192.168.31.100:10088`
-
-### 直接播放某个油管直播
-
-访问 `http://192.168.31.100:10088/live.m3u8?url=` + Youtube地址。注意，此处Youtube地址需要做Urlencode转码。
-
-比如想观看 三立新闻台的直播 [https://www.youtube.com/watch?v=4ZVUmEUFwaY](https://www.youtube.com/watch?v=4ZVUmEUFwaY)。
-那么，可以使用 `http://192.168.31.100:10088/live.m3u8?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D4ZVUmEUFwaY` 直接播放对应的直播。
-
-由于后台使用了`youtube-dl`进行视频解析，所以画面加载速度不会特别快，但是后续的播放会很流畅，不用担心。
-
-### 在电视APP或者Kodi上播放
-
-修改 `channel.txt` ，将你的直播链接直接写在里面。具体格式为：
-
-```text
-#直播的显示名称
-直播地址（无需任何转换直接贴进来）
-```
-
-可以参考代码中带的`channel.txt`文件，设置多个直播源。#号标注的直播名称会作为IPTV的频道显示。
-
-在Kodi或电视上操作IPTV客户端，设置播放清单为 `http://192.168.31.100:10088/lives.m3u` ，重启Kodi就可以看到这些频道了。
-
-## 代理模式
-本程序支持代理模式，当`config.ini`中的`ProxyStream`设置为true时， 并且在`livetv.service`文件中设定`HTTP_PROXY` 环境变量后。所有直播流量会被本程序代理。
-这种使用场景可以解决电视上没法科学上网的困扰，只需要在路由器或者家庭服务器里运行本程序，使用给定的M3U文件，电视就可以以IPTV形式直接观看油管直播了。
+當你使用Kodi之類的播放器，可以考慮使用第一行的M3U檔案URL進行播放，會自動生成包含所有頻道信息的播放列表。

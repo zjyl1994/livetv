@@ -1,41 +1,34 @@
 # LiveTV
 Use Youtube live as IPTV feeds
 
-## Install from source code
+## Install 
 
-Install `youtube-dl` by your package manager,we need it.
+First you need to install Docker, Centos7 users can directly use the following tutorials. [How To Install and Use Docker on CentOS 7](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-centos-7)
 
-Install Go 1.13 and above compilation environment.
+After installing Docker, you can enable LiveTV! on your local port 9500 with the following command:
 
-Enter the following command to install.
+`docker run -d -p9500:9000 zjyl1994/livetv:1.0`
 
-```bash
-git clone https://github.com/zjyl1994/livetv.git
-cd livetv
-go build
-sudo cp livetv /usr/local/bin/
-sudo mkdir -p /etc/livetv
-sudo cp config.ini playlist.m3u channel.txt /etc/livetv/
-sudo cp livetv.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl start livetv
-```
+The data file is stored inside the container in the `/root/data` directory, so it is recommended to use the -v command to map this directory to the host's directory.
+
+An example of using an external storage directory is shown below.
+
+`docker run -d -p9500:9000 -v/mnt/data/livetv:/root/data zjyl1994/livetv:1.0`
+
+This will open a LiveTV! container on port 9500 that uses the `/mnt/data/livetv` directory as storage.
+
+PS: If you do not specify an external storage directory, LiveTV! will not be able to read the previous configuration file when it reboots.
 
 ## Usage
 
-### Direct play Youtube live
+First you need to know how to access your host from the outside, if you are using a VPS or a dedicated server, you can visit `http://your_ip:9500` and you should see the following screen.
 
-`baseURL + "/live.m3u8?url=" + Youtube link`
+![index_page](pic/index-en.png)
 
-Default baseURL is `http://127.0.0.1:10088`, and you want to watch `https://www.youtube.com/watch?v=dp8PhLsUcFE`
+First of all, you need to click "Auto Fill" in the setting area, set the correct URL, then click "Save Config".
 
-You can use `http://127.0.0.1:10088/live.m3u8?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Ddp8PhLsUcFE` to watch this live in Kodi or IPTV.
+Then you can add a channel. After the channel is added successfully, you can play the M3U8 file from the address column.
 
-Because of `youtube-dl` parsing is slow,first time to watch will slower.If live started,it speed only depend on you bandwidth.
+When you use Kodi or similar player, you can consider using the M3U file URL in the first row to play, and a playlist containing all the channel information will be generated automatically.
 
-### Use in Kodi or TV
-
-Modify `channel.txt` , add Youtube live link in it. First line is channel name,must start with `#`.Second line is Youtube live link.
-If you have more, repeate it.
-
-Add `http://127.0.0.1:10088/lives.m3u`(default setting) or `{baseURL}/lives.m3u`(replace baseURL by your setting) in Kodi,and enjoy watch live in Kodi.
+Document Translate by [DeepL](https://www.deepl.com/zh/translator)
