@@ -18,6 +18,7 @@ func GetYoutubeLiveM3U8(youtubeURL string) (string, error) {
 		liveURL, err := RealGetYoutubeLiveM3U8(youtubeURL)
 		if err != nil {
 			log.Println(err)
+			log.Println("[YTDL]",liveURL)
 			return "", err
 		} else {
 			global.URLCache.Store(youtubeURL, liveURL)

@@ -13,7 +13,7 @@ The data file is stored inside the container in the `/root/data` directory, so i
 
 An example of using an external storage directory is shown below.
 
-`docker run -d -p9500:9000 -v/mnt/data/livetv:/root/data zjyl1994/livetv:1.0`
+`docker run -d -p9500:9000 -v/mnt/data/livetv:/root/data zjyl1994/livetv:1.1`
 
 This will open a LiveTV! container on port 9500 that uses the `/mnt/data/livetv` directory as storage.
 
@@ -32,5 +32,7 @@ First of all, you need to click "Auto Fill" in the setting area, set the correct
 Then you can add a channel. After the channel is added successfully, you can play the M3U8 file from the address column.
 
 When you use Kodi or similar player, you can consider using the M3U file URL in the first row to play, and a playlist containing all the channel information will be generated automatically.
+
+Youtube-dl document here => [https://github.com/ytdl-org/youtube-dl](https://github.com/ytdl-org/youtube-dl)
 
 Document Translate by [DeepL](https://www.deepl.com/zh/translator)
