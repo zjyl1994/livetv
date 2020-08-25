@@ -24,12 +24,12 @@ func M3UHandler(c *gin.Context) {
 }
 
 func LiveHandler(c *gin.Context) {
-	channelNumber := c.Query("channel")
-	if channelNumber == "" {
+	channelNumber := util.String2Uint(c.Query("c"))
+	if channelNumber == 0 {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
-	channelInfo, err := service.GetChannel(util.String2Uint(channelNumber))
+	channelInfo, err := service.GetChannel(channelNumber)
 	if err != nil {
 		log.Println(err)
 		if gorm.IsRecordNotFoundError(err) {

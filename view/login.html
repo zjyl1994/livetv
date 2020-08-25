@@ -13,18 +13,21 @@
     <link href="/assert/css/signin.css" rel="stylesheet">
   </head>
   <body>
-    <div class="container">
-        <form class="form-signin" role="form" action="/api/login" method="POST">
-            <h2 class="form-signin-heading">Please sign in</h2>
+    <div class="login-form">
+        <form role="form" action="/api/login" method="POST">
+            <h2 class="text-center">Sign in LiveTV!</h2>  
             <div class="form-group">
-                <label for="inputPassword"  class="sr-only">Password</label>
-                <div class="input-group">
-                    <input type="password" class="form-control" id="inputPassword" name="password"  placeholder="Password" required  autofocus>
-                </div>
+                <input type="password" class="form-control" id="inputPassword" name="password"  placeholder="Password" required  autofocus>
             </div>
             <input type="hidden" name="crsf" value="{{.Crsf}}">
-            <button type="submit" class="btn btn-default">Login</button>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-block">Log in</button>
+            </div>
         </form>
+        <footer class="text-center">
+            <a href="https://github.com/zjyl1994/livetv">LiveTV!</a> by <a href="https://github.com/zjyl1994">zjyl1994</a>.
+            Made with <span style="color: #e25555;">&hearts;</span> in Kwangtung.
+          </footer>
     </div>
     <script src="/assert/js/jquery.min.js"></script>
     <script src="/assert/js/bootstrap.min.js"></script>

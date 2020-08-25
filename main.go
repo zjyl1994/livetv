@@ -26,7 +26,7 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("Server listen", os.Getenv("LIVETV_LISTEN"))
 	log.Println("Server datadir", os.Getenv("LIVETV_DATADIR"))
-	logFile, err := os.OpenFile(os.Getenv("LIVETV_DATADIR")+"/livetv.log", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+	logFile, err := os.OpenFile(os.Getenv("LIVETV_DATADIR")+"/livetv.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -47,7 +47,7 @@ func main() {
 	if err != nil {
 		sessionSecert = "sessionSecert"
 	}
-	gin.SetMode(gin.DebugMode)
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 	store := cookie.NewStore([]byte(sessionSecert))
 	router.Use(sessions.Sessions("mysession", store))

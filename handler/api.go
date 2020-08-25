@@ -61,7 +61,7 @@ func IndexHandler(c *gin.Context) {
 			ID:    v.ID,
 			Name:  v.Name,
 			URL:   v.URL,
-			M3U8:  baseUrl + "/live.m3u8?channel=" + strconv.Itoa(int(v.ID)),
+			M3U8:  baseUrl + "/live.m3u8?c=" + strconv.Itoa(int(v.ID)),
 			Proxy: v.Proxy,
 		}
 	}
@@ -291,5 +291,5 @@ func ChangePasswordHandler(c *gin.Context) {
 		})
 		return
 	}
-	c.Redirect(http.StatusFound, "/")
+	LogoutHandler(c)
 }

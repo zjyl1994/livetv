@@ -21,6 +21,8 @@ PS: If you do not specify an external storage directory, LiveTV! will not be abl
 
 ## Usage
 
+Default password is "password".
+
 First you need to know how to access your host from the outside, if you are using a VPS or a dedicated server, you can visit `http://your_ip:9500` and you should see the following screen.
 
 ![index_page](pic/index-en.png)
