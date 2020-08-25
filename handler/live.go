@@ -51,12 +51,28 @@ func LiveHandler(c *gin.Context) {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
 	}
-	if channelInfo.Proxy {
-		liveProxyM3U8 := baseUrl + "/p/live.m3u8?k=" + util.CompressString(liveM3U8)
-		c.Redirect(http.StatusTemporaryRedirect, liveProxyM3U8)
-	} else {
-		c.Redirect(http.StatusTemporaryRedirect, liveM3U8)
+	client := http.Client{Timeout: global.HttpClientTimeout}
+	resp, err := client.Get(liveM3U8)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
 	}
+	defer resp.Body.Close()
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	bodyString := string(bodyBytes)
+	var processedBody string
+	if channelInfo.Proxy {
+		processedBody = service.M3U8Process(bodyString, baseUrl+"/live.ts?k=")
+	} else {
+		processedBody = bodyString
+	}
+	c.Data(http.StatusOK, resp.Header.Get("Content-Type"), []byte(processedBody))
 }
 
 func TsProxyHandler(c *gin.Context) {
@@ -80,43 +96,6 @@ func TsProxyHandler(c *gin.Context) {
 	}
 	defer resp.Body.Close()
 	c.DataFromReader(http.StatusOK, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, nil)
-}
-
-func M3U8ProxyHandler(c *gin.Context) {
-	zipedRemoteURL := c.Query("k")
-	m3u8URL, err := util.DecompressString(zipedRemoteURL)
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	if m3u8URL == "" {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
-	}
-	baseURL, err := service.GetConfig("base_url")
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	client := http.Client{Timeout: global.HttpClientTimeout}
-	resp, err := client.Get(m3u8URL)
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	defer resp.Body.Close()
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	bodyString := string(bodyBytes)
-	processedBody := service.M3U8Process(bodyString, baseURL+"/p/live.ts?k=")
-	c.Data(http.StatusOK, resp.Header.Get("Content-Type"), []byte(processedBody))
 }
 
 func CacheHandler(c *gin.Context) {
