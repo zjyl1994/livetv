@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OOPS!</title>
+    <link href="/assert/css/bootstrap.min.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+      <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+    <![endif]-->
+    <link href="/assert/css/signin.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+        <form class="form-signin" role="form" action="/api/login" method="POST">
+            <h2 class="form-signin-heading">Please sign in</h2>
+            <div class="form-group">
+                <label for="inputPassword"  class="sr-only">Password</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="inputPassword" name="password"  placeholder="Password" required  autofocus>
+                </div>
+            </div>
+            <input type="hidden" name="crsf" value="{{.Crsf}}">
+            <button type="submit" class="btn btn-default">Login</button>
+        </form>
+    </div>
+    <script src="/assert/js/jquery.min.js"></script>
+    <script src="/assert/js/bootstrap.min.js"></script>
+  </body>
+</html>

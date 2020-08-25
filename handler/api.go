@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/zjyl1994/livetv/model"
 	"github.com/zjyl1994/livetv/service"
@@ -21,6 +22,9 @@ var langMatcher = language.NewMatcher([]language.Tag{
 })
 
 func IndexHandler(c *gin.Context) {
+	if sessions.Default(c).Get("logined") != true {
+		c.Redirect(http.StatusFound, "/login")
+	}
 	acceptLang := c.Request.Header.Get("Accept-Language")
 	langTag, _ := language.MatchStrings(langMatcher, acceptLang)
 
@@ -103,6 +107,9 @@ func loadConfig() (Config, error) {
 }
 
 func NewChannelHandler(c *gin.Context) {
+	if sessions.Default(c).Get("logined") != true {
+		c.Redirect(http.StatusFound, "/login")
+	}
 	chName := c.PostForm("name")
 	chURL := c.PostForm("url")
 	if chName == "" || chURL == "" {
@@ -127,6 +134,9 @@ func NewChannelHandler(c *gin.Context) {
 }
 
 func DeleteChannelHandler(c *gin.Context) {
+	if sessions.Default(c).Get("logined") != true {
+		c.Redirect(http.StatusFound, "/login")
+	}
 	chID := util.String2Uint(c.Query("id"))
 	if chID == 0 {
 		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
@@ -146,6 +156,9 @@ func DeleteChannelHandler(c *gin.Context) {
 }
 
 func UpdateConfigHandler(c *gin.Context) {
+	if sessions.Default(c).Get("logined") != true {
+		c.Redirect(http.StatusFound, "/login")
+	}
 	ytdlCmd := c.PostForm("cmd")
 	ytdlArgs := c.PostForm("args")
 	baseUrl := strings.TrimSuffix(c.PostForm("baseurl"), "/")
@@ -183,5 +196,78 @@ func UpdateConfigHandler(c *gin.Context) {
 }
 
 func LogHandler(c *gin.Context) {
+	if sessions.Default(c).Get("logined") != true {
+		c.Redirect(http.StatusFound, "/login")
+	}
 	c.File(os.Getenv("LIVETV_DATADIR") + "/livetv.log")
+}
+
+func LoginViewHandler(c *gin.Context) {
+	session := sessions.Default(c)
+	crsfToken := util.RandString(10)
+	session.Set("crsfToken", crsfToken)
+	err := session.Save()
+	if err != nil {
+		log.Println(err.Error())
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+			"ErrMsg": err.Error(),
+		})
+		return
+	}
+	c.HTML(http.StatusOK, "login.html", gin.H{
+		"Crsf": crsfToken,
+	})
+}
+
+func LoginActionHandler(c *gin.Context) {
+	session := sessions.Default(c)
+	crsfToken := c.PostForm("crsf")
+	if crsfToken != session.Get("crsfToken") {
+		c.HTML(http.StatusOK, "error.html", gin.H{
+			"ErrMsg": "Password error!",
+		})
+		return
+	}
+	pass := c.PostForm("password")
+	cfgPass, err := service.GetConfig("password")
+	if err != nil {
+		log.Println(err.Error())
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+			"ErrMsg": err.Error(),
+		})
+		return
+	}
+	if pass == cfgPass {
+		session.Set("logined", true)
+		err = session.Save()
+		if err != nil {
+			log.Println(err.Error())
+			c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+				"ErrMsg": err.Error(),
+			})
+			return
+		}
+		c.Redirect(http.StatusFound, "/")
+	} else {
+		c.HTML(http.StatusOK, "error.html", gin.H{
+			"ErrMsg": "Password error!",
+		})
+	}
+}
+
+func LogoutHandler(c *gin.Context) {
+	if sessions.Default(c).Get("logined") != true {
+		c.Redirect(http.StatusFound, "/login")
+	}
+	session := sessions.Default(c)
+	session.Delete("logined")
+	err := session.Save()
+	if err != nil {
+		log.Println(err.Error())
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+			"ErrMsg": err.Error(),
+		})
+		return
+	}
+	c.Redirect(http.StatusFound, "/login")
 }

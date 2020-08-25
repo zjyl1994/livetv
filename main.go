@@ -4,12 +4,15 @@ import (
 	"context"
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/robfig/cron/v3"
@@ -19,6 +22,7 @@ import (
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("Server listen", os.Getenv("LIVETV_LISTEN"))
 	log.Println("Server datadir", os.Getenv("LIVETV_DATADIR"))
@@ -32,19 +36,22 @@ func main() {
 		log.Panicf("init: %s\n", err)
 	}
 	log.Println("LiveTV starting...")
-	go service.LoadChannelCache()
+	//go service.LoadChannelCache()
 	c := cron.New()
 	_, err = c.AddFunc("0 */4 * * *", service.UpdateURLCache)
 	if err != nil {
 		log.Panicf("preloadCron: %s\n", err)
 	}
 	c.Start()
-	gin.SetMode(gin.ReleaseMode)
+	sessionSecert, err := service.GetConfig("password")
+	if err != nil {
+		sessionSecert = "sessionSecert"
+	}
+	gin.SetMode(gin.DebugMode)
 	router := gin.Default()
+	store := cookie.NewStore([]byte(sessionSecert))
+	router.Use(sessions.Sessions("mysession", store))
 	router.Static("/assert", "./assert")
-	router.GET("/version", func(c *gin.Context) {
-		c.String(http.StatusOK, global.VersionString)
-	})
 	route.Register(router)
 	srv := &http.Server{
 		Addr:    os.Getenv("LIVETV_LISTEN"),
