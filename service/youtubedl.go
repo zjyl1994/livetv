@@ -12,7 +12,6 @@ import (
 func GetYoutubeLiveM3U8(youtubeURL string) (string, error) {
 	liveURL, ok := global.URLCache.Load(youtubeURL)
 	if ok {
-		log.Println("cache hit", youtubeURL)
 		return liveURL.(string), nil
 	} else {
 		log.Println("cache miss", youtubeURL)

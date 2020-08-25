@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -24,55 +25,62 @@ func M3UHandler(c *gin.Context) {
 }
 
 func LiveHandler(c *gin.Context) {
-	channelNumber := util.String2Uint(c.Query("c"))
-	if channelNumber == 0 {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
-	}
-	channelInfo, err := service.GetChannel(channelNumber)
-	if err != nil {
-		log.Println(err)
-		if gorm.IsRecordNotFoundError(err) {
-			c.AbortWithStatus(http.StatusNotFound)
-		} else {
-			c.AbortWithStatus(http.StatusInternalServerError)
-		}
-		return
-	}
-	baseUrl, err := service.GetConfig("base_url")
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	liveM3U8, err := service.GetYoutubeLiveM3U8(channelInfo.URL)
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	client := http.Client{Timeout: global.HttpClientTimeout}
-	resp, err := client.Get(liveM3U8)
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	defer resp.Body.Close()
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Println(err)
-		c.AbortWithStatus(http.StatusInternalServerError)
-		return
-	}
-	bodyString := string(bodyBytes)
-	var processedBody string
-	if channelInfo.Proxy {
-		processedBody = service.M3U8Process(bodyString, baseUrl+"/live.ts?k=")
+	var m3u8Body string
+	channelCacheKey := c.Query("c")
+	iBody, found := global.M3U8Cache.Get(channelCacheKey)
+	if found {
+		m3u8Body = iBody.(string)
 	} else {
-		processedBody = bodyString
+		channelNumber := util.String2Uint(c.Query("c"))
+		if channelNumber == 0 {
+			c.AbortWithStatus(http.StatusNotFound)
+			return
+		}
+		channelInfo, err := service.GetChannel(channelNumber)
+		if err != nil {
+			if gorm.IsRecordNotFoundError(err) {
+				c.AbortWithStatus(http.StatusNotFound)
+			} else {
+				log.Println(err)
+				c.AbortWithStatus(http.StatusInternalServerError)
+			}
+			return
+		}
+		baseUrl, err := service.GetConfig("base_url")
+		if err != nil {
+			log.Println(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		liveM3U8, err := service.GetYoutubeLiveM3U8(channelInfo.URL)
+		if err != nil {
+			log.Println(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		client := http.Client{Timeout: global.HttpClientTimeout}
+		resp, err := client.Get(liveM3U8)
+		if err != nil {
+			log.Println(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		defer resp.Body.Close()
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Println(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		bodyString := string(bodyBytes)
+		if channelInfo.Proxy {
+			m3u8Body = service.M3U8Process(bodyString, baseUrl+"/live.ts?k=")
+		} else {
+			m3u8Body = bodyString
+		}
+		global.M3U8Cache.Set(channelCacheKey, m3u8Body, 3*time.Second)
 	}
-	c.Data(http.StatusOK, resp.Header.Get("Content-Type"), []byte(processedBody))
+	c.Data(http.StatusOK, "application/vnd.apple.mpegurl", []byte(m3u8Body))
 }
 
 func TsProxyHandler(c *gin.Context) {
