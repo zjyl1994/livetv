@@ -22,4 +22,5 @@ func Register(r *gin.Engine) {
 	r.GET("/login", handler.LoginViewHandler)
 	r.POST("/api/login", handler.LoginActionHandler)
 	r.GET("/api/logout", handler.LogoutHandler)
+	r.POST("/api/changepwd", handler.ChangePasswordHandler)
 }

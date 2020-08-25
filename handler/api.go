@@ -271,3 +271,25 @@ func LogoutHandler(c *gin.Context) {
 	}
 	c.Redirect(http.StatusFound, "/login")
 }
+
+func ChangePasswordHandler(c *gin.Context) {
+	if sessions.Default(c).Get("logined") != true {
+		c.Redirect(http.StatusFound, "/login")
+	}
+	pass := c.PostForm("password")
+	pass2 := c.PostForm("password2")
+	if pass != pass2 {
+		c.HTML(http.StatusOK, "error.html", gin.H{
+			"ErrMsg": "Password mismatch!",
+		})
+	}
+	err := service.SetConfig("password", pass)
+	if err != nil {
+		log.Println(err.Error())
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+			"ErrMsg": err.Error(),
+		})
+		return
+	}
+	c.Redirect(http.StatusFound, "/")
+}
