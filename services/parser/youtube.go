@@ -8,6 +8,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"time"
+
+	"github.com/zjyl1994/livetv/utils"
 )
 
 var (
@@ -16,6 +18,7 @@ var (
 
 type YoutubeLiveParser struct {
 	datadir string
+	updator utils.GithubUpdator
 }
 
 type ytdlOutput struct {
@@ -45,6 +48,7 @@ func (o ytdlOutput) ToLiveInfo() LiveInfo {
 func NewYoutubeLiveParser(datadir string) *YoutubeLiveParser {
 	return &YoutubeLiveParser{
 		datadir: datadir,
+		updator: utils.NewGithubUpdator("ytdl-org/youtube-dl", datadir, "youtube-dl"),
 	}
 }
 
@@ -79,12 +83,12 @@ func (p *YoutubeLiveParser) callYoutubedl(url string) (output []byte, err error)
 
 // Placeholder
 func (p *YoutubeLiveParser) ParserUpgradeable() bool {
-	return false
+	return true
 }
 
 func (p *YoutubeLiveParser) ParserNeedUpdate() (bool, error) {
-	return false, nil
+	return p.updator.CheckUpdate()
 }
 func (p *YoutubeLiveParser) ParserUpdate() error {
-	return nil
+	return p.updator.Update()
 }
