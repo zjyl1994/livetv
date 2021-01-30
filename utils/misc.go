@@ -5,6 +5,10 @@ import (
 	"net/http"
 )
 
+const (
+	MegaByte = 1024 * 1024
+)
+
 func DownloadFile(url string) (content []byte, err error) {
 	resp, err := http.Get(url)
 	if err != nil {
