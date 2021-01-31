@@ -2,7 +2,9 @@ package parser
 
 import (
 	"errors"
-	"os"
+	"net/url"
+
+	"github.com/zjyl1994/livetv/utils"
 )
 
 type LiveFormat struct {
@@ -25,11 +27,24 @@ type Parser interface {
 
 var (
 	ErrURLNotSupport = errors.New("parser: url not support")
-	ParserRegistry   map[string]Parser
+	parserRegistry   map[string]Parser
 )
 
 func Init() {
-	ParserRegistry = make(map[string]Parser)
-	ParserRegistry["youtube-live"] = NewYoutubeLiveParser(os.Getenv("LIVETV_DATADIR"))
-	ParserRegistry["RTHK-31/32"] = NewRTHKLiveParser()
+	parserRegistry = make(map[string]Parser)
+	parserRegistry["www.youtube.com"] = NewYoutubeLiveParser(utils.DataDir(""))
+	parserRegistry["www.rthk.hk"] = NewRTHKLiveParser()
+}
+
+func PickParser(strUrl string) (Parser, error) {
+	ui, err := url.Parse(strUrl)
+	if err != nil {
+		return nil, err
+	}
+	parser, ok := parserRegistry[ui.Host]
+	if ok {
+		return parser, nil
+	} else {
+		return nil, ErrURLNotSupport
+	}
 }

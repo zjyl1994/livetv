@@ -4,6 +4,7 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/zjyl1994/livetv/utils"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -18,8 +19,8 @@ var (
 	}
 )
 
-func InitDB(filepath string) (err error) {
-	db, err = gorm.Open(sqlite.Open(filepath), &gorm.Config{})
+func Init() (err error) {
+	db, err = gorm.Open(sqlite.Open(utils.DataDir("./livetv.db")), &gorm.Config{})
 	if err != nil {
 		return err
 	}

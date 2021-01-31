@@ -15,6 +15,7 @@ type FileLRU struct {
 	cacheDir         string
 	lastReadTime     sync.Map
 	fileSize         sync.Map
+	fileMeta         sync.Map
 	cleanMutex       sync.Mutex
 	isCleanRunning   bool
 }
@@ -31,7 +32,7 @@ func NewFileLRU(cacheDir string, maxCacheSize int64) (*FileLRU, error) {
 	return &FileLRU{cacheDir: cacheDir, maxCacheSize: maxCacheSize}, nil
 }
 
-func (lru *FileLRU) NewFile(key string, data []byte) error {
+func (lru *FileLRU) NewFile(key string, data []byte, meta interface{}) error {
 	realFilepath := filepath.Join(lru.cacheDir, key)
 	dataSize := int64(len(data))
 	err := ioutil.WriteFile(realFilepath, data, 0644)
@@ -40,6 +41,7 @@ func (lru *FileLRU) NewFile(key string, data []byte) error {
 	}
 	lru.fileSize.Store(key, dataSize)
 	lru.lastReadTime.Store(key, time.Now().Unix())
+	lru.fileMeta.Store(key, meta)
 	lru.currentCacheSize += dataSize
 	if lru.currentCacheSize > lru.maxCacheSize {
 		go lru.Clean()
@@ -47,10 +49,25 @@ func (lru *FileLRU) NewFile(key string, data []byte) error {
 	return nil
 }
 
-func (lru *FileLRU) GetFile(key string) ([]byte, error) {
+func (lru *FileLRU) GetFile(key string) ([]byte, interface{}, error) {
 	realFilepath := filepath.Join(lru.cacheDir, key)
 	lru.lastReadTime.Store(key, time.Now().Unix())
-	return ioutil.ReadFile(realFilepath)
+	meta, ok := lru.fileMeta.Load(key)
+	data, err := ioutil.ReadFile(realFilepath)
+	if err != nil {
+		return nil, nil, err
+	} else {
+		if ok {
+			return data, meta, nil
+		} else {
+			return data, nil, nil
+		}
+	}
+}
+
+func (lru *FileLRU) CheckFileExist(key string) bool {
+	realFilepath := filepath.Join(lru.cacheDir, key)
+	return FileExists(realFilepath)
 }
 
 type lruEntity struct {
@@ -84,6 +101,7 @@ func (lru *FileLRU) Clean() {
 			}
 			lru.lastReadTime.Delete(v.Key)
 			lru.fileSize.Delete(v.Key)
+			lru.fileMeta.Delete(v.Key)
 			lru.currentCacheSize -= deletedSize
 			if lru.currentCacheSize < lru.maxCacheSize {
 				break

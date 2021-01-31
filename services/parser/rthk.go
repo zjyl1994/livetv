@@ -23,7 +23,7 @@ func NewRTHKLiveParser() RTHKLiveParser {
 }
 
 func (RTHKLiveParser) GetLiveStream(url string) (info LiveInfo, err error) {
-	content, err := utils.DownloadFile(url)
+	content, _, err := utils.DownloadFile(url)
 	if err != nil {
 		return LiveInfo{}, err
 	}
