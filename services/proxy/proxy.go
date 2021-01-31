@@ -24,6 +24,7 @@ var (
 
 func Init() error {
 	tsUrlCache = cache.New(30*time.Second, 5*time.Minute)
+	m3u8Cache = cache.New(30*time.Second, 5*time.Minute)
 	var err error
 	tsFileCache, err = utils.NewFileLRU(utils.DataDir("./cache"), 100*utils.MegaByte)
 	if err != nil {
@@ -95,11 +96,15 @@ func M3U8Proxy(channelID string) (contentType string, data []byte, err error) {
 		if err != nil {
 			return "", nil, err
 		}
-		newData, err := realM3U8Trans(data, tsUrlCache, baseUrl)
-		if err != nil {
-			return "", nil, err
+		if chInfo.Proxy {
+			newData, err := realM3U8Trans(data, tsUrlCache, baseUrl+"/ts?id=")
+			if err != nil {
+				return "", nil, err
+			}
+			return contentType, newData, nil
+		} else {
+			return contentType, data, nil
 		}
-		return contentType, newData, err
 	}
 }
 
